@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+
+if [ -z ${TFC_AWS_PLAN_ROLE_ARN+x} ] &&  [ -z ${TFC_AWS_RUN_ROLE_ARN+x} ]; then
+  echo "Skipping this script because both env vars are missing and unset";    
+  else
+  set +u
+  ROLE_ARN="${TFC_AWS_PLAN_ROLE_ARN:-$TFC_AWS_RUN_ROLE_ARN}"
+  set -u
+  echo "Preparing AWS provider auth..."
+
+  # Remove any previous identity tokens
+  rm -f /.aws-workload/token-file
+  echo "${TFC_WORKLOAD_IDENTITY_TOKEN}" > /.aws-workload/token-file
+
+  mkdir ~/.aws
+  rm -f ~/.aws/config
+  {
+    echo "[default]"
+    echo "role_arn=${ROLE_ARN}"
+    echo "web_identity_token_file=/.aws-workload/token-file"
+    echo "role_session_name=${TFC_RUN_ID}"
+  } >> ~/.aws/config
+
+  echo "AWS provider auth prepared"
+fi
