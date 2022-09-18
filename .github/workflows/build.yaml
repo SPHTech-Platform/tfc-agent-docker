@@ -9,7 +9,7 @@ on:
   #     - 'main'
 env:
   BASE_VERSION: 1.3.0
-  AWS_REGION: ap-southeast-1
+  AWS_REGION: us-east-1
 
 permissions:
       id-token: write   # This is required for requesting the JWT
