@@ -8,5 +8,10 @@ USER root
 
 # Create a directory we will later save our identity token to
 RUN mkdir /.aws-workload \
-  && chown -R tfc-agent:tfc-agent /.aws-workload
+  && chown -R tfc-agent:tfc-agent /.aws-workload \
+  && mkdir /.gcp-workload \
+  && chown -R tfc-agent:tfc-agent /.gcp-workload
+
 USER tfc-agent
+
+ENV GOOGLE_APPLICATION_CREDENTIALS=/.gcp-workload/app-credentials
