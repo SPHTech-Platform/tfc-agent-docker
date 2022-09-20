@@ -1,8 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
+AWS_TOKEN_FILE="${AWS_TOKEN_FILE:-/.aws-workload/token-file}"
+GCP_WORKLOAD_BASE="${GCP_WORKLOAD_BASE:-/.gcp-workload}"
+
+####################
+# AWS Auth
+####################
 if [ -z ${TFC_AWS_APPLY_ROLE_ARN+x} ] && [ -z ${TFC_AWS_RUN_ROLE_ARN+x} ]; then
-  echo "Skipping this script because both env vars are missing and unset";
+  echo "Skipping AWS Auth";
   else
   set +u
   ROLE_ARN="${TFC_AWS_APPLY_ROLE_ARN:-$TFC_AWS_RUN_ROLE_ARN}"
@@ -10,17 +16,49 @@ if [ -z ${TFC_AWS_APPLY_ROLE_ARN+x} ] && [ -z ${TFC_AWS_RUN_ROLE_ARN+x} ]; then
   echo "Preparing AWS provider auth..."
 
   # Remove any previous identity tokens
-  rm -f /.aws-workload/token-file
-  echo "${TFC_WORKLOAD_IDENTITY_TOKEN}" > /.aws-workload/token-file
+  rm -f "${AWS_TOKEN_FILE}"
+  echo "${TFC_WORKLOAD_IDENTITY_TOKEN}" > "${AWS_TOKEN_FILE}"
 
-  mkdir ~/.aws
+  mkdir -p ~/.aws
   rm -f ~/.aws/config
   {
     echo "[default]"
     echo "role_arn=${ROLE_ARN}"
-    echo "web_identity_token_file=/.aws-workload/token-file"
+    echo "web_identity_token_file=${AWS_TOKEN_FILE}"
     echo "role_session_name=${TFC_RUN_ID}"
   } >> ~/.aws/config
 
+  echo "IAM Role: ${ROLE_ARN}"
   echo "AWS provider auth prepared"
+fi
+
+####################
+# GCP Auth
+####################
+if [ -z ${TFC_GCP_APPLY_SERVICE_ACCOUNT_EMAIL+x} ] && [ -z ${TFC_GCP_RUN_SERVICE_ACCOUNT_EMAIL+x} ]; then
+  echo "Skipping GCP Auth";
+  else
+  set +u
+  SERVICE_ACCOUNT_EMAIL="${TFC_GCP_APPLY_SERVICE_ACCOUNT_EMAIL:-$TFC_GCP_RUN_SERVICE_ACCOUNT_EMAIL}"
+  set -u
+  echo "Preparing GCP provider auth..."
+
+  # Remove any previous temporary credentials
+  rm -f "${GCP_WORKLOAD_BASE}/app-credentials"
+  rm -f "${GCP_WORKLOAD_BASE}/token-file"
+
+  export AUDIENCE="//iam.googleapis.com/projects/${TFC_GCP_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${TFC_GCP_WORKLOAD_POOL_ID}/providers/${TFC_GCP_WORKLOAD_PROVIDER_ID}"
+  export SERVICE_URL="https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${SERVICE_ACCOUNT_EMAIL}:generateAccessToken"
+
+  jq -n -r --arg AUDIENCE "${AUDIENCE}" --arg SERVICE_URL "${SERVICE_URL}" '{
+    "type": "external_account", "audience": $AUDIENCE,
+    "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
+    "token_url": "https://sts.googleapis.com/v1/token",
+    "credential_source": { "file": "${GCP_WORKLOAD_BASE}/token-file" },
+    "service_account_impersonation_url": $SERVICE_URL }' > "${GCP_WORKLOAD_BASE}/app-credentials"
+
+  echo "${TFC_WORKLOAD_IDENTITY_TOKEN}" > "${GCP_WORKLOAD_BASE}/token-file"
+
+  echo "GCP Service Account Email: ${SERVICE_ACCOUNT_EMAIL}"
+  echo "GCP provider auth prepared"
 fi
