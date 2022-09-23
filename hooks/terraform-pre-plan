@@ -50,11 +50,11 @@ if [ -z ${TFC_GCP_PLAN_SERVICE_ACCOUNT_EMAIL+x} ] && [ -z ${TFC_GCP_RUN_SERVICE_
   export AUDIENCE="//iam.googleapis.com/projects/${TFC_GCP_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${TFC_GCP_WORKLOAD_POOL_ID}/providers/${TFC_GCP_WORKLOAD_PROVIDER_ID}"
   export SERVICE_URL="https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${SERVICE_ACCOUNT_EMAIL}:generateAccessToken"
 
-  jq -n -r --arg AUDIENCE "${AUDIENCE}" --arg SERVICE_URL "${SERVICE_URL}" --arg GCP_WORKLOAD_BASE "${GCP_WORKLOAD_BASE}" '{
+  jq -n -r --arg AUDIENCE "${AUDIENCE}" --arg SERVICE_URL "${SERVICE_URL}" --arg GCP_TOKEN_FILE "${GCP_WORKLOAD_BASE}/token-file" '{
     "type": "external_account", "audience": $AUDIENCE,
     "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
     "token_url": "https://sts.googleapis.com/v1/token",
-    "credential_source": { "file": "$GCP_WORKLOAD_BASE/token-file" },
+    "credential_source": { "file": $GCP_TOKEN_FILE },
     "service_account_impersonation_url": $SERVICE_URL }' > "${GCP_WORKLOAD_BASE}/app-credentials"
 
   echo "${TFC_WORKLOAD_IDENTITY_TOKEN}" > "${GCP_WORKLOAD_BASE}/token-file"

@@ -5,7 +5,7 @@ setup() {
   export TFC_WORKLOAD_IDENTITY_TOKEN="foobar"
   export TFC_RUN_ID="run-12345"
   export TFC_GCP_PROJECT_NUMBER=12345
-  export TFC_GCP_WORKLOAD_POOL_ID="https://swim.with.google"
+  export TFC_GCP_WORKLOAD_POOL_ID="swim.with.google"
   export TFC_GCP_WORKLOAD_PROVIDER_ID="tfc"
 
   mkdir -p "${HOME}"
