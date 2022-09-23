@@ -17,7 +17,7 @@ function decode_jwt(){
    decode_base64_url "$(echo -n "${2}" | cut -d "." -f "${1}")" | jq .
 }
 
-if [ -n ${TFC_DEBUG+x} ]; then
+if [ -n "${TFC_DEBUG+x}" ]; then
   decode_jwt 2 "${TFC_WORKLOAD_IDENTITY_TOKEN}"
 fi
 
@@ -47,7 +47,7 @@ if [ -z ${TFC_AWS_APPLY_ROLE_ARN+x} ] && [ -z ${TFC_AWS_RUN_ROLE_ARN+x} ]; then
 
   echo "IAM Role: ${ROLE_ARN}"
 
-  if [ -n ${TFC_DEBUG+x} ]; then
+  if [ -n "${TFC_DEBUG+x}" ]; then
     cat ~/.aws/config
   fi
 
@@ -83,7 +83,7 @@ if [ -z ${TFC_GCP_APPLY_SERVICE_ACCOUNT_EMAIL+x} ] && [ -z ${TFC_GCP_RUN_SERVICE
 
   echo "GCP Service Account Email: ${SERVICE_ACCOUNT_EMAIL}"
 
-  if [ -n ${TFC_DEBUG+x} ]; then
+  if [ -n "${TFC_DEBUG+x}" ]; then
     cat "${GCP_WORKLOAD_BASE}/app-credentials"
   fi
 
