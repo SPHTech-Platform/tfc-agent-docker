@@ -4,6 +4,23 @@ set -euo pipefail
 AWS_TOKEN_FILE="${AWS_TOKEN_FILE:-/.aws-workload/token-file}"
 GCP_WORKLOAD_BASE="${GCP_WORKLOAD_BASE:-/.gcp-workload}"
 
+function decode_base64_url() {
+  local len=$((${#1} % 4))
+  local result="$1"
+  if [ $len -eq 2 ]; then result="$1"'=='
+  elif [ $len -eq 3 ]; then result="$1"'='
+  fi
+  echo "$result" | tr '_-' '/+' | openssl enc -d -base64 | jq
+}
+
+function decode_jwt(){
+   decode_base64_url "$(echo -n "${2}" | cut -d "." -f "${1}")" | jq .
+}
+
+if [ ! -z ${TFC_DEBUG+x} ]; then
+  decode_jwt 2 "${TFC_WORKLOAD_IDENTITY_TOKEN}"
+fi
+
 ####################
 # AWS Auth
 ####################
@@ -29,6 +46,11 @@ if [ -z ${TFC_AWS_PLAN_ROLE_ARN+x} ] && [ -z ${TFC_AWS_RUN_ROLE_ARN+x} ]; then
   } >> ~/.aws/config
 
   echo "IAM Role: ${ROLE_ARN}"
+
+  if [ ! -z ${TFC_DEBUG+x} ]; then
+    cat ~/.aws/config
+  fi
+
   echo "AWS provider auth prepared"
 fi
 
@@ -60,5 +82,10 @@ if [ -z ${TFC_GCP_PLAN_SERVICE_ACCOUNT_EMAIL+x} ] && [ -z ${TFC_GCP_RUN_SERVICE_
   echo "${TFC_WORKLOAD_IDENTITY_TOKEN}" > "${GCP_WORKLOAD_BASE}/token-file"
 
   echo "GCP Service Account Email: ${SERVICE_ACCOUNT_EMAIL}"
+
+  if [ ! -z ${TFC_DEBUG+x} ]; then
+    cat "${GCP_WORKLOAD_BASE}/app-credentials"
+  fi
+
   echo "GCP provider auth prepared"
 fi
