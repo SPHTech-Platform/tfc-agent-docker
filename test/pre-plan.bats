@@ -37,3 +37,20 @@ load _helpers
     assert_line 'Skipping AWS Auth'
     assert_line 'GCP Service Account Email: planner@gcp.com'
 }
+
+@test "plan uses the right VAULT role" {
+    TFC_VAULT_RUN_ROLE="tfc-vault-role" \
+        run terraform-pre-plan
+
+    assert_line 'Skipping AWS Auth'
+    assert_line 'Skipping GCP Auth'
+    assert_line 'VAULT Role: tfc-vault-role'
+
+    TFC_VAULT_RUN_ROLE="tfc-vault-role" \
+    TFC_VAULT_PLAN_ROLE="tfc-vault-plan-role" \
+        run terraform-pre-plan
+
+    assert_line 'Skipping AWS Auth'
+    assert_line 'Skipping GCP Auth'
+    assert_line 'VAULT Role: tfc-vault-plan-role'
+}
