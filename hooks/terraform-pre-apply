@@ -110,7 +110,7 @@ if [ -z ${TFC_VAULT_APPLY_ROLE+x} ] && [ -z ${TFC_VAULT_RUN_ROLE+x} ]; then
       --request POST \
       --data @payload.json | jq -r ".auth.client_token")
 
-    echo $VAULT_TOKEN > ~/.vault-token
+    echo "${VAULT_TOKEN}" > ~/.vault-token
 
     echo "VAULT Role: ${VAULT_ROLE}"
 
