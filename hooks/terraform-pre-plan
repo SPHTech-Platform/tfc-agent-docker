@@ -114,5 +114,9 @@ if [ -z ${TFC_VAULT_PLAN_ROLE+x} ] && [ -z ${TFC_VAULT_RUN_ROLE+x} ]; then
 
     echo "VAULT Role: ${VAULT_ROLE}"
 
+    if [ -n "${TFC_DEBUG+x}" ]; then
+      vault token lookup
+    fi
+
     echo "VAULT provider auth prepared"
 fi
