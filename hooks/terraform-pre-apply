@@ -89,3 +89,34 @@ if [ -z ${TFC_GCP_APPLY_SERVICE_ACCOUNT_EMAIL+x} ] && [ -z ${TFC_GCP_RUN_SERVICE
 
   echo "GCP provider auth prepared"
 fi
+
+####################
+# Vault Auth
+####################
+if [ -z ${TFC_VAULT_APPLY_ROLE+x} ] && [ -z ${TFC_VAULT_RUN_ROLE+x} ]; then
+  echo "Skipping VAULT Auth";
+  else
+    set +u
+    VAULT_ROLE="${TFC_VAULT_APPLY_ROLE:-$TFC_VAULT_RUN_ROLE}"
+    set -u
+    echo "Preparing VAULT provider auth..."
+
+    jq -n -r --arg JWT "$TFC_WORKLOAD_IDENTITY_TOKEN" --arg ROLE "$VAULT_ROLE" '{
+      "jwt": $JWT, 
+      "role": $ROLE }' > ~/.vault-payload.json
+
+    VAULT_TOKEN=$(curl --silent --show-error "$VAULT_ADDR/v1/auth/jwt/login" \
+      --header "X-Vault-Namespace: $VAULT_NAMESPACE" \
+      --request POST \
+      --data "@~/.vault-payload.json" | jq -r ".auth.client_token")
+
+    echo "${VAULT_TOKEN}" > ~/.vault-token
+
+    echo "VAULT Role: ${VAULT_ROLE}"
+
+    if [ -n "${TFC_DEBUG+x}" ]; then
+      vault token lookup
+    fi
+
+    echo "VAULT provider auth prepared"
+fi
