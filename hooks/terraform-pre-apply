@@ -96,9 +96,9 @@ fi
 if [ -z ${TFC_VAULT_APPLY_ROLE+x} ] && [ -z ${TFC_VAULT_RUN_ROLE+x} ]; then
   echo "Skipping VAULT Auth";
   else
+    VAULT_PATH="${VAULT_AUTH_PATH:-tfc}"
     set +u
     VAULT_ROLE="${TFC_VAULT_APPLY_ROLE:-$TFC_VAULT_RUN_ROLE}"
-    VAULT_PATH="${VAULT_AUTH_PATH:-tfc}"
     set -u
     echo "Preparing VAULT provider auth..."
 
