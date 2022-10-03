@@ -9,6 +9,7 @@ setup() {
   export TFC_GCP_WORKLOAD_PROVIDER_ID="tfc"
   export VAULT_ADDR="https://main.vault.0cbdb520-5871-4f8a-b02b-81e27b14da3f.aws.hashicorp.cloud:8200/"
   export VAULT_NAMESPACE="test"
+  export VAULT_AUTH_PATH="tfc"
 
   mkdir -p "${HOME}"
   mkdir -p "${BATS_TEST_TMPDIR}/.aws-workload"
