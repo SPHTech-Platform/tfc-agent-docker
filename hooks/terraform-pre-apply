@@ -96,6 +96,7 @@ fi
 if [ -z ${TFC_VAULT_APPLY_ROLE+x} ] && [ -z ${TFC_VAULT_RUN_ROLE+x} ]; then
   echo "Skipping VAULT Auth";
   else
+    VAULT_PATH="${VAULT_AUTH_PATH:-tfc}"
     set +u
     VAULT_ROLE="${TFC_VAULT_APPLY_ROLE:-$TFC_VAULT_RUN_ROLE}"
     set -u
@@ -105,7 +106,7 @@ if [ -z ${TFC_VAULT_APPLY_ROLE+x} ] && [ -z ${TFC_VAULT_RUN_ROLE+x} ]; then
       "jwt": $JWT, 
       "role": $ROLE }' > ~/.vault-payload.json
 
-    VAULT_TOKEN=$(curl --silent --show-error "$VAULT_ADDR/v1/auth/jwt/login" \
+    VAULT_TOKEN=$(curl --silent --show-error "$VAULT_ADDR/v1/auth/$VAULT_PATH/login" \
       --header "X-Vault-Namespace: $VAULT_NAMESPACE" \
       --request POST \
       --data "@~/.vault-payload.json" | jq -r ".auth.client_token")
@@ -115,7 +116,9 @@ if [ -z ${TFC_VAULT_APPLY_ROLE+x} ] && [ -z ${TFC_VAULT_RUN_ROLE+x} ]; then
     echo "VAULT Role: ${VAULT_ROLE}"
 
     if [ -n "${TFC_DEBUG+x}" ]; then
-      vault token lookup
+      curl --silent --show-error "$VAULT_ADDR/v1/auth/token/lookup-self" \
+              --header "X-Vault-Token: $VAULT_TOKEN" \
+              --header "X-Vault-Namespace: $VAULT_NAMESPACE" | jq .
     fi
 
     echo "VAULT provider auth prepared"
