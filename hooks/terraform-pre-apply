@@ -96,13 +96,12 @@ fi
 if [ -z ${TFC_VAULT_APPLY_ROLE+x} ] && [ -z ${TFC_VAULT_RUN_ROLE+x} ]; then
   echo "Skipping VAULT Auth";
   else
-    VAULT_PATH="${VAULT_AUTH_PATH:-tfc}"
     set +u
     VAULT_ROLE="${TFC_VAULT_APPLY_ROLE:-$TFC_VAULT_RUN_ROLE}"
     set -u
     echo "Preparing VAULT provider auth..."
 
-    TERRAFORM_VAULT_AUTH_JWT="$TFC_WORKLOAD_IDENTITY_TOKEN"
+    export TERRAFORM_VAULT_AUTH_JWT="$TFC_WORKLOAD_IDENTITY_TOKEN"
     echo "VAULT Role: ${VAULT_ROLE}"
 
     echo "VAULT provider auth prepared"
