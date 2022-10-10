@@ -102,5 +102,7 @@ if [ -z ${TFC_WORKLOAD_IDENTITY_AUDIENCE+x} ]; then
     # Remove any previous identity tokens
     rm -f "${VAULT_TOKEN_FILE}"
     echo "${TFC_WORKLOAD_IDENTITY_TOKEN}" > "${VAULT_TOKEN_FILE}"
+    echo "VAULT token path: ${VAULT_TOKEN_FILE}"
+
     echo "VAULT provider auth prepared"
 fi
