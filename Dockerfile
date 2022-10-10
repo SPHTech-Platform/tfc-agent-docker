@@ -11,6 +11,8 @@ RUN mkdir /.aws-workload \
   && chown -R tfc-agent:tfc-agent /.aws-workload \
   && mkdir /.gcp-workload \
   && chown -R tfc-agent:tfc-agent /.gcp-workload
+  && mkdir /.vault-workload \
+  && chown -R tfc-agent:tfc-agent /.vault-workload \
 
 USER tfc-agent
 

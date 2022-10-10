@@ -3,6 +3,7 @@ set -euo pipefail
 
 AWS_TOKEN_FILE="${AWS_TOKEN_FILE:-/.aws-workload/token-file}"
 GCP_WORKLOAD_BASE="${GCP_WORKLOAD_BASE:-/.gcp-workload}"
+VAULT_TOKEN_FILE="${VAULT_TOKEN_FILE:-/.vault-workload/token-file}"
 
 function decode_base64_url() {
   local len=$((${#1} % 4))
@@ -97,6 +98,9 @@ if [ -z ${TFC_WORKLOAD_IDENTITY_AUDIENCE+x} ]; then
   echo "Skipping VAULT Auth";
   else
     echo "Preparing VAULT provider auth..."
-    export TERRAFORM_VAULT_AUTH_JWT="$TFC_WORKLOAD_IDENTITY_TOKEN"
+    
+    # Remove any previous identity tokens
+    rm -f "${VAULT_TOKEN_FILE}"
+    echo "${TFC_WORKLOAD_IDENTITY_TOKEN}" > "${VAULT_TOKEN_FILE}"
     echo "VAULT provider auth prepared"
 fi
