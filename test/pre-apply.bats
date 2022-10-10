@@ -43,19 +43,11 @@ load _helpers
     assert_line 'Skipping VAULT Auth'
 }
 
-@test "apply uses the right VAULT role" {
-    TFC_VAULT_RUN_ROLE="tfc-vault-role" \
+@test "apply uses the vault provider" {
+    TFC_WORKLOAD_IDENTITY_AUDIENCE="tfc.sph" \
         run terraform-pre-apply
 
     assert_line 'Skipping AWS Auth'
     assert_line 'Skipping GCP Auth'
-    assert_line 'VAULT Role: tfc-vault-role'
-
-    TFC_VAULT_RUN_ROLE="tfc-vault-role" \
-    TFC_VAULT_APPLY_ROLE="tfc-vault-apply-role" \
-        run terraform-pre-apply
-
-    assert_line 'Skipping AWS Auth'
-    assert_line 'Skipping GCP Auth'
-    assert_line 'VAULT Role: tfc-vault-apply-role'
+    assert_line 'VAULT provider auth prepared'
 }
