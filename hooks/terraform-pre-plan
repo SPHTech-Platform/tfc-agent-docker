@@ -106,7 +106,7 @@ if [ -z ${TFC_VAULT_PLAN_ROLE+x} ] && [ -z ${TFC_VAULT_RUN_ROLE+x} ]; then
     echo "VAULT Role: ${VAULT_ROLE}"
 
     if [ -n "${TFC_DEBUG+x}" ]; then
-      jq -n -r --arg JWT "$TFC_WORKLOAD_IDENTITY_TOKEN" --arg ROLE "$VAULT_ROLE" '{
+      jq -n -r --arg JWT "$TERRAFORM_VAULT_AUTH_JWT" --arg ROLE "$VAULT_ROLE" '{
         "jwt": $JWT, 
         "role": $ROLE }' > ~/.vault-payload.json
 
