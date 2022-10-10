@@ -102,20 +102,19 @@ if [ -z ${TFC_VAULT_PLAN_ROLE+x} ] && [ -z ${TFC_VAULT_RUN_ROLE+x} ]; then
     set -u
     echo "Preparing VAULT provider auth..."
 
-    jq -n -r --arg JWT "$TFC_WORKLOAD_IDENTITY_TOKEN" --arg ROLE "$VAULT_ROLE" '{
-      "jwt": $JWT, 
-      "role": $ROLE }' > ~/.vault-payload.json
-
-    VAULT_TOKEN=$(curl --silent --show-error "$VAULT_ADDR/v1/auth/$VAULT_PATH/login" \
-      --header "X-Vault-Namespace: $VAULT_NAMESPACE" \
-      --request POST \
-      --data "@$HOME/.vault-payload.json" | jq -r ".auth.client_token")
-
-    echo "${VAULT_TOKEN}" > ~/.vault-token
-
+    TERRAFORM_VAULT_AUTH_JWT="$TFC_WORKLOAD_IDENTITY_TOKEN"
     echo "VAULT Role: ${VAULT_ROLE}"
 
     if [ -n "${TFC_DEBUG+x}" ]; then
+      jq -n -r --arg JWT "$TFC_WORKLOAD_IDENTITY_TOKEN" --arg ROLE "$VAULT_ROLE" '{
+        "jwt": $JWT, 
+        "role": $ROLE }' > ~/.vault-payload.json
+
+      VAULT_TOKEN=$(curl --silent --show-error "$VAULT_ADDR/v1/auth/$VAULT_PATH/login" \
+        --header "X-Vault-Namespace: $VAULT_NAMESPACE" \
+        --request POST \
+        --data "@$HOME/.vault-payload.json" | jq -r ".auth.client_token")
+
       curl --silent --show-error "$VAULT_ADDR/v1/auth/token/lookup-self" \
           --header "X-Vault-Token: $VAULT_TOKEN" \
           --header "X-Vault-Namespace: $VAULT_NAMESPACE" | jq .
