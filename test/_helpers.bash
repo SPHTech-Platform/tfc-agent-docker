@@ -7,12 +7,14 @@ setup() {
   export TFC_GCP_PROJECT_NUMBER=12345
   export TFC_GCP_WORKLOAD_POOL_ID="swim.with.google"
   export TFC_GCP_WORKLOAD_PROVIDER_ID="tfc"
+  export VAULT_TOKEN_FILE="${BATS_TEST_TMPDIR}/.vault-workload/token-file"
   export VAULT_ADDR="https://main.vault.0cbdb520-5871-4f8a-b02b-81e27b14da3f.aws.hashicorp.cloud:8200/"
   export VAULT_NAMESPACE="test"
 
   mkdir -p "${HOME}"
   mkdir -p "${BATS_TEST_TMPDIR}/.aws-workload"
   mkdir -p "${GCP_WORKLOAD_BASE}"
+  mkdir -p "${BATS_TEST_TMPDIR}/.vault-workload"
 
   # get the containing directory of this file
   # use $BATS_TEST_FILENAME instead of ${BASH_SOURCE[0]} or $0,
